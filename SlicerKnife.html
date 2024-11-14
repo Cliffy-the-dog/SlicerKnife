@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slicer Knife</title>
+    <style>
+        body, html {
+            margin: 0;
+            overflow: hidden;
+            background-color: #f0f8ff;
+        }
+        #gameCanvas {
+            display: block;
+            background-color: #87ceeb;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let knife = {
+            x: 100,
+            y: canvas.height / 2,
+            width: 60,
+            height: 10,
+            velocityY: 0,
+            gravity: 0.5,
+            lift: -10,
+            rotation: 0,
+        };
+
+        let platforms = [createPlatform(canvas.height / 2)];
+        let spikes = [];
+        let objectsToCut = [];
+        let gameSpeed = 3;
+        let isGameOver = false;
+
+        function createPlatform(y) {
+            return {
+                x: canvas.width,
+                y: y,
+                width: 200,
+                height: 20,
+            };
+        }
+
+        function createSpike() {
+            return {
+                x: canvas.width,
+                y: canvas.height - 20,
+                width: 20,
+                height: 20,
+            };
+        }
+
+        function createObjectToCut(y) {
+            return {
+                x: canvas.width,
+                y: y,
+                width: 20,
+                height: 20,
+            };
+        }
+
+        function drawKnife() {
+            ctx.save();
+            ctx.translate(knife.x + knife.width / 2, knife.y + knife.height / 2);
+            ctx.rotate(knife.rotation);
+            ctx.fillStyle = '#c0c0c0';
+            ctx.fillRect(-knife.width / 2, -knife.height / 2, knife.width, knife.height);
+            ctx.fillStyle = '#8b0000';
+            ctx.fillRect(knife.width / 4, -knife.height / 2, knife.width / 2, knife.height);
+            ctx.restore();
+        }
+
+        function drawPlatform(platform) {
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        }
+
+        function drawSpike(spike) {
+            ctx.fillStyle = '#dc143c';
+            ctx.beginPath();
+            ctx.moveTo(spike.x, spike.y);
+            ctx.lineTo(spike.x + spike.width / 2, spike.y - spike.height);
+            ctx.lineTo(spike.x + spike.width, spike.y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawObjectToCut(object) {
+            ctx.fillStyle = '#32cd32';
+            ctx.fillRect(object.x, object.y, object.width, object.height);
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            knife.y += knife.velocityY;
+            knife.velocityY += knife.gravity;
+            knife.rotation += 0.1;
+
+            if (knife.y + knife.height > canvas.height) {
+                isGameOver = true;
+            }
+
+            platforms.forEach((platform, index) => {
+                platform.x -= gameSpeed;
+                if (platform.x + platform.width < 0) {
+                    platforms.splice(index, 1);
+                }
+               
+                if (knife.x < platform.x + platform.width &&
+                    knife.x + knife.width > platform.x &&
+                    knife.y + knife.height >= platform.y &&
+                    knife.y + knife.height <= platform.y + 10) {
+                    knife.velocityY = 0;
+                    knife.y = platform.y - knife.height;
+                }
+            });
+
+            spikes.forEach((spike, index) => {
+                spike.x -= gameSpeed;
+                if (spike.x + spike.width < 0) {
+                    spikes.splice(index, 1);
+                }
+               
+                if (knife.x < spike.x + spike.width &&
+                    knife.x + knife.width > spike.x &&
+                    knife.y + knife.height >= spike.y) {
+                    isGameOver = true;
+                }
+            });
+
+            objectsToCut.forEach((object, index) => {
+                object.x -= gameSpeed;
+                if (object.x + object.width < 0) {
+                    objectsToCut.splice(index, 1);
+                }
+               
+                if (knife.x < object.x + object.width &&
+                    knife.x + knife.width > object.x &&
+                    knife.y < object.y + object.height &&
+                    knife.y + knife.height > object.y) {
+                    objectsToCut.splice(index, 1); // Remove object when cut
+                }
+            });
+
+            if (Math.random() < 0.01) {
+                platforms.push(createPlatform(Math.random() * (canvas.height - 200) + 100));
+            }
+
+            if (Math.random() < 0.01) {
+                spikes.push(createSpike());
+            }
+
+            if (Math.random() < 0.02) {
+                objectsToCut.push(createObjectToCut(Math.random() * (canvas.height - 200) + 100));
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawKnife();
+
+            platforms.forEach(drawPlatform);
+            spikes.forEach(drawSpike);
+            objectsToCut.forEach(drawObjectToCut);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            if (!isGameOver) {
+                requestAnimationFrame(gameLoop);
+            } else {
+                alert('Game Over');
+            }
+        }
+
+        window.addEventListener('click', () => {
+            if (!isGameOver && knife.y + knife.height >= canvas.height / 2 - 20) {
+                knife.velocityY = knife.lift;
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
