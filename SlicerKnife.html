@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Slicer Knife</title>
+    <title>Pizza Cutter</title>
     <style>
         body, html {
             margin: 0;
@@ -12,7 +12,7 @@
         }
         #gameCanvas {
             display: block;
-            background-color: #87ceeb;
+            background-color: #87ebeb;
         }
     </style>
 </head>
@@ -26,11 +26,11 @@
 
         let knife = {
             x: 100,
-            y: canvas.height / 2,
+            y: canvas.height / 5,
             width: 60,
             height: 10,
             velocityY: 0,
-            gravity: 0.5,
+            gravity: 0.3,
             lift: -10,
             rotation: 0,
         };
@@ -38,14 +38,14 @@
         let platforms = [createPlatform(canvas.height / 2)];
         let spikes = [];
         let objectsToCut = [];
-        let gameSpeed = 3;
+        let gameSpeed = 2;
         let isGameOver = false;
 
         function createPlatform(y) {
             return {
                 x: canvas.width,
                 y: y,
-                width: 200,
+                width: Math.random() * 250 + 50,
                 height: 20,
             };
         }
