@@ -12,7 +12,7 @@
         }
         #gameCanvas {
             display: block;
-            background-color: #87ebeb;
+            background-color: #93fbfb;
         }
     </style>
 </head>
@@ -80,12 +80,12 @@
         }
 
         function drawPlatform(platform) {
-            ctx.fillStyle = '#8b4513';
+            ctx.fillStyle = '#ffffff';
             ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
         }
 
         function drawSpike(spike) {
-            ctx.fillStyle = '#dc143c';
+            ctx.fillStyle = '#880808';
             ctx.beginPath();
             ctx.moveTo(spike.x, spike.y);
             ctx.lineTo(spike.x + spike.width / 2, spike.y - spike.height);
@@ -118,8 +118,8 @@
                
                 if (knife.x < platform.x + platform.width &&
                     knife.x + knife.width > platform.x &&
-                    knife.y + knife.height >= platform.y &&
-                    knife.y + knife.height <= platform.y + 10) {
+                    knife.y + knife.height >= platform.y + 50 &&
+                    knife.y + knife.height <= platform.y + 60) {
                     knife.velocityY = 0;
                     knife.y = platform.y - knife.height;
                 }
@@ -190,6 +190,14 @@
                 knife.velocityY = knife.lift;
             }
         });
+        window.addEventListener('keydown', () => {
+            if (event.code === 'Space' || event.key.toLowerCase() === 'w' || event.key === 'ArrowUp' ) {
+                if (!isGameOver && knife.y + knife.height >= canvas.height / 2 - 20) {
+                    knife.velocityY = knife.lift;
+                }
+            }
+        });
+
 
         gameLoop();
     </script>
